@@ -97,6 +97,14 @@ body {
 .btn.ghost { background: transparent; color: var(--muted); border: 1px dashed rgba(255,255,255,0.03); }
 .btn:active { transform: translateY(1px); }
 
+
+home-btn {
+	font-size: 0.9rem;
+	background-color: rbg(11, 111, 49);
+
+}
+
+
 /* Forms */
 .form {
 	display:flex;

@@ -13,11 +13,22 @@ export default function App() {
 
       {/* Temporary Navigation */}
       <nav className="flex gap-4 p-4 bg-gray-100">
-        <a href="/">Home</a>
-        <a href="/spaces">Study Spaces</a>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-        <a href="/favorites" className="mr-4">Favorites</a>
+      
+        <a href="/">
+        <button className="home-btn">Home</button>
+       </a>
+        <a href="/spaces">
+        <button className="study-spaces-btn">Study Spaces</button>
+        </a>
+        <a href="/login">
+        <button className="login-btn">Login</button>
+        </a>
+        <a href="/register">
+        <button className="register-btn">Register</button>
+        </a>
+        <a href="/favorites" className="mr-4">
+        <button className="favorites-btn">My Favorites</button>
+        </a>
       </nav>
 
       {/* Page Routes */}
