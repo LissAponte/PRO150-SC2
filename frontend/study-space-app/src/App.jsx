@@ -19,10 +19,6 @@ export default function App() {
         <button className="study-spaces-btn">Study Spaces</button>
         </a>
         <a href="/login">
-        <button className="login-btn">Login</button>
-        </a>
-        <a href="/register">
-        <button className="register-btn">Register</button>
         </a>
         <a href="/favorites" className="mr-4">
         <button className="favorites-btn">My Favorites</button>
@@ -36,8 +32,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/spaces" element={<StudySpaces />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route path="/spaces/:id" element={<StudySpaceDetails />} />
         <Route path="/favorites" element={<MyFavorites />} />
         <Route path="/profile" element={<Profile />} />
