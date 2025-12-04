@@ -5,7 +5,7 @@ import Register from "./pages/Register";
 import StudySpaces from "./pages/StudySpace";
 import StudySpaceDetails from "./pages/StudySpaceDetails";
 import MyFavorites from "./pages/MyFavorites";
-
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -29,6 +29,9 @@ export default function App() {
         <a href="/favorites" className="mr-4">
         <button className="favorites-btn">My Favorites</button>
         </a>
+        <a href="/profile">
+        <button className="profile-btn">Profile</button>
+        </a>
       </nav>
 
       {/* Page Routes */}
@@ -39,6 +42,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/spaces/:id" element={<StudySpaceDetails />} />
         <Route path="/favorites" element={<MyFavorites />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
 
     </div>
