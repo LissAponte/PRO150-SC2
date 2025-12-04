@@ -16,7 +16,7 @@ export default function App() {
       
         <a href="/">
         <button className="home-btn">Home</button>
-       </a>
+        </a>
         <a href="/spaces">
         <button className="study-spaces-btn">Study Spaces</button>
         </a>
