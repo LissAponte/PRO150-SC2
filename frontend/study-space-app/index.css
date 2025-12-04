@@ -23,6 +23,8 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	background: linear-gradient(180deg, #062405 0%, #051305 50%, #020e05 100%);
+	background-image: url("./200w.gif");
+	background-size: fixed;
 	color: #e6eef8;
 	line-height: 1.45;
 	-webkit-tap-highlight-color: transparent;
@@ -139,22 +141,22 @@ body {
 	gap:0.6rem;
 }
 input[type="text"], input[type="email"], input[type="password"], textarea, select {
-	background: var(--glass);
+	background: var(--bg);
 	border: 1px solid rgba(255,255,255,0.04);
 	padding: 0.6rem 0.8rem;
 	border-radius: 8px;
 	color: inherit;
 	outline: none;
 }
-input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 4px rgba(96,165,250,0.06); border-color: var(--accent); }
+input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 4px rgba(96,165,250,0.06); border-color: var(--bg); }
 
 /* Card utilities */
 .card-row { display:flex; gap:0.6rem; align-items:center; justify-content:space-between; }
-.pill { padding: 0.25rem 0.6rem; border-radius: 999px; background: rgba(255,255,255,0.03); color:var(--muted); font-size:0.85rem; }
+.pill { padding: 0.25rem 0.6rem; border-radius: 999px; background: rgba(255,255,255,0.03); color:var(--bg); font-size:0.85rem; }
 
 /* Empty state and loaders */
 .empty { text-align:center; color:var(--muted); padding:2rem 1rem; }
-.loader { width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,0.06); border-top-color:var(--accent); animation:spin 1s linear infinite; margin:0 auto; }
+.loader { width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,0.06); border-top-color:var(--bg); animation:spin 1s linear infinite; margin:0 auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Responsive */
