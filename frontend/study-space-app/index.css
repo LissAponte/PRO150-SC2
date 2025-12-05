@@ -24,8 +24,8 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 	background: linear-gradient(180deg, #062405 0%, #051305 50%, #020e05 100%);
 	background-image: url("./200w.gif");
+	background-position: 0rcap;
 	background-size: fixed;
-	color: #e6eef8;
 	line-height: 1.45;
 	-webkit-tap-highlight-color: transparent;
 }
@@ -37,6 +37,18 @@ body {
 	min-height: 100vh;
 	align-items: center;
 	padding: 2rem 1rem;
+}
+
+#root h1 {
+	color: rgb(4, 21, 4);
+	font-weight: 600;
+	border: solid rgb(4, 21, 4);
+	border-radius: 60px;
+	padding: 20px;
+	width: 410px;
+	height: 100px;
+	background-color:  darkgreen;
+	
 }
 
 .app-container {
@@ -95,17 +107,17 @@ body {
 	cursor: pointer;
 	font-weight: 600;
 }
-.btn.secondary { background: transparent; color: var(--accent); border: 1px solid rgba(96,165,250,0.12); }
-.btn.ghost { background: transparent; color: var(--muted); border: 1px dashed rgba(255,255,255,0.03); }
+.btn.secondary { background: solid; color: var(--accent); border: 1px solid rgba(96,165,250,0.12); }
+.btn.ghost { background: solid; color: var(--muted); border: 1px dashed rgba(255,255,255,0.03); }
 .btn:active { transform: translateY(1px); }
 
 
 .home-btn, .study-spaces-btn, .login-btn, .register-btn, .favorites-btn {
 	font-size: 0.9rem;
 	padding: 0.4rem 0.7rem;
-	color: darkgreen;
-	border:  2px solid darkgreen;
-	background: rgba(0, 128, 0, 0.1);
+	color: rgb(4, 21, 4);
+	border:  2px solid rgb(4, 21, 4);
+	background-color: darkgreen;
 	border-radius: 60px;
 	cursor : pointer;
 	padding: 70px;
@@ -114,6 +126,7 @@ body {
 	position: relative;
 	top: 10px;
 	left: 10px;
+
 	
 }
 
@@ -122,15 +135,15 @@ body {
 	padding: 0.4rem 0.7rem;
 	color: darkgreen;
 	border:  2px solid darkgreen;
-	background: rgba(0, 128, 0, 0.1);
+	background: solid rgba(0, 128, 0, 0.1);
 	border-radius: 60px;
 	cursor : pointer;
 	padding: 40px;
 	font-size: 40px;
 	justify-content: center;
 	position: relative;
-	top: 480px;
-	left: 1360px;
+	top: 700px;
+	left: 200px;
 }
 
 
