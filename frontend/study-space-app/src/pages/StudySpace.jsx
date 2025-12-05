@@ -61,7 +61,7 @@ export default function StudySpaces() {
     <div className="max-w-5xl mx-auto mt-10">
 
       {/* Title */}
-      <h1 className="text-3xl font-bold mb-6">Study Spaces</h1>
+      <h2 className="text-3xl font-bold mb-6">ⓈⓉⓊⒹⓎ ⓈⓅⒶⒸⒺⓈ</h2>
 
       {/* Filters */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">

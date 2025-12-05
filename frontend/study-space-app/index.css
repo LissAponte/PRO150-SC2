@@ -50,6 +50,17 @@ body {
 	background-color:  darkgreen;
 	
 }
+#root h2 {
+	color: rgb(4, 21, 4);
+	font-weight: 600;
+	border: solid rgb(4, 21, 4);
+	border-radius: 60px;
+	padding: 20px;
+	width: 418px;
+	height: 80px;
+	background-color:  darkgreen;
+	
+}
 
 .app-container {
 	width: 100%;
@@ -158,10 +169,14 @@ input[type="text"], input[type="email"], input[type="password"], textarea, selec
 	border: 1px solid rgba(255,255,255,0.04);
 	padding: 0.6rem 0.8rem;
 	border-radius: 8px;
+	width: 210px;
 	color: inherit;
 	outline: none;
+	color: grey;
 }
 input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 4px rgba(96,165,250,0.06); border-color: var(--bg); }
+
+
 
 /* Card utilities */
 .card-row { display:flex; gap:0.6rem; align-items:center; justify-content:space-between; }
