@@ -72,6 +72,17 @@ body {
 
 }
 
+#root h3 {
+	color: rgb(4, 21, 4);
+	font-weight: 600;
+	border: solid rgb(4, 21, 4);
+	border-radius: 60px;
+	padding: 20px;
+	width: 500px;
+	height: 60px;
+	background-color:  darkgreen;
+	
+}
 
 #root p {
 	color: rgb(7, 26, 7);

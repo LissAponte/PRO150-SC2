@@ -23,7 +23,7 @@ export default function MyFavorites() {
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-4">
-      <h1 className="text-3xl font-bold mb-6">Ⓜⓨ Ⓕⓐⓥⓞⓡⓘⓣⓔ Ⓢⓣⓤⓓⓨ Ⓢⓟⓐⓒⓔⓢ</h1>
+      <h3 className="text-3xl font-bold mb-6">Ⓜⓨ Ⓕⓐⓥⓞⓡⓘⓣⓔ Ⓢⓣⓤⓓⓨ Ⓢⓟⓐⓒⓔⓢ</h3>
 
       {spaces.length === 0 && (
         <p>Ⓨⓞⓤ ⓗⓐⓥⓔ ⓝⓞ ⓕⓐⓥⓞⓡⓘⓣⓔ ⓢⓣⓤⓓⓨ ⓢⓟⓐⓒⓔⓢ ⓨⓔⓣ.</p>
