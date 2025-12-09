@@ -39,6 +39,7 @@ body {
 	padding: 2rem 1rem;
 }
 
+
 #root h1 {
 	color: rgb(4, 21, 4);
 	font-weight: 600;
@@ -62,6 +63,12 @@ body {
 	
 }
 
+
+ #root p {
+	color: rgb(7, 26, 7);
+	font-weight: 600;
+	border-width: text;
+}
 .app-container {
 	width: 100%;
 	max-width: var(--max-width);
@@ -144,9 +151,9 @@ body {
 .profile-btn {
 	font-size: 0.9rem;
 	padding: 0.4rem 0.7rem;
-	color: darkgreen;
-	border:  2px solid darkgreen;
-	background: solid rgba(0, 128, 0, 0.1);
+	color: rgb(4, 21, 4);
+	border: 2px solid rgb(4, 21, 4);
+	background:  darkgreen;
 	border-radius: 60px;
 	cursor : pointer;
 	padding: 40px;

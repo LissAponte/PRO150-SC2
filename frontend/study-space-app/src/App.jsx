@@ -5,6 +5,7 @@ import StudySpaceDetails from "./pages/StudySpaceDetails";
 import MyFavorites from "./pages/MyFavorites";
 import Profile from "./pages/Profile";
 
+
 export default function App() {
   return (
     <div>

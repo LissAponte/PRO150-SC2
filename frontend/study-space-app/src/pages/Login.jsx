@@ -25,7 +25,7 @@ export default function Login() {
   return (
     <form onSubmit={handleLogin} className="max-w-sm mx-auto mt-16 flex flex-col gap-4">
       
-      <h2 className="text-2xl font-bold">Login</h2>
+      <h2 className="text-2xl font-bold">Ⓛⓞⓖⓘⓝ</h2>
 
       {error && <p className="text-red-500">{error}</p>}
 
@@ -43,7 +43,7 @@ export default function Login() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button className="bg-blue-500 text-white p-2 rounded">Login</button>
+      <button className="bg-blue-500 text-white p-2 rounded">Ⓛⓞⓖⓘⓝ</button>
     </form>
   );
 }

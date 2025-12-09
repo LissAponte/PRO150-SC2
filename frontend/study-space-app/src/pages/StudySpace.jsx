@@ -55,7 +55,7 @@ export default function StudySpaces() {
     return matchesSearch && matchesTag && matchesRating;
   });
 
-  if (loading) return <p className="mt-20 text-center">Loading study spaces...</p>;
+  if (loading) return <p className="mt-20 text-center"> Ⓛⓞⓐⓓⓘⓝⓖ ⓢⓣⓤⓓⓨ ⓢⓟⓐⓒⓔⓢ...</p>;
 
   return (
     <div className="max-w-5xl mx-auto mt-10">
@@ -117,23 +117,23 @@ export default function StudySpaces() {
             </p>
 
             <p className="mt-2">
-              <strong>Rating:</strong> {space.rating} ⭐
+              <strong>Ⓡⓐⓣⓘⓝⓖ:</strong> {space.rating} ⭐
             </p>
 
             {space.tags.length > 0 && (
               <p className="mt-2">
-                <strong>Tags:</strong> {space.tags.join(", ")}
+                <strong>Ⓣⓐⓖⓢ:</strong> {space.tags.join(", ")}
               </p>
             )}
 
             <p className="mt-2 text-sm text-gray-500">
-              Created by: {space.createdBy?.username || "Unknown"}
+              Ⓒⓡⓔⓐⓣⓔⓓ ⓑⓨ: {space.createdBy?.username || "Unknown"}
             </p>
             <a
               href={`/spaces/${space._id}`}
               className="mt-3 inline-block bg-blue-500 text-white px-3 py-1 rounded"
             >
-              View Details
+              Ⓥⓘⓔⓦ Ⓓⓔⓣⓐⓘⓛⓢ
             </a>
           </div>
         ))}

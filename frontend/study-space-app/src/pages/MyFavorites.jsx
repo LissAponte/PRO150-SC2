@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
 
+
 export default function MyFavorites() {
   const [spaces, setSpaces] = useState([]);
 
@@ -22,10 +23,10 @@ export default function MyFavorites() {
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-4">
-      <h1 className="text-3xl font-bold mb-6">My Favorite Study Spaces</h1>
+      <h1 className="text-3xl font-bold mb-6">Ⓜⓨ Ⓕⓐⓥⓞⓡⓘⓣⓔ Ⓢⓣⓤⓓⓨ Ⓢⓟⓐⓒⓔⓢ</h1>
 
       {spaces.length === 0 && (
-        <p>You have no favorite study spaces yet.</p>
+        <p>Ⓨⓞⓤ ⓗⓐⓥⓔ ⓝⓞ ⓕⓐⓥⓞⓡⓘⓣⓔ ⓢⓣⓤⓓⓨ ⓢⓟⓐⓒⓔⓢ ⓨⓔⓣ.</p>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -38,7 +39,7 @@ export default function MyFavorites() {
               href={`/spaces/${space._id}`}
               className="mt-3 inline-block bg-blue-500 text-white px-3 py-1 rounded"
             >
-              View Details
+             Ⓥⓘⓔⓦ Ⓓⓔⓣⓐⓘⓛⓢ
             </a>
           </div>
         ))}
