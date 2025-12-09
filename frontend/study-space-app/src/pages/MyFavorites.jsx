@@ -39,7 +39,7 @@ export default function MyFavorites() {
               href={`/spaces/${space._id}`}
               className="mt-3 inline-block bg-blue-500 text-white px-3 py-1 rounded"
             >
-             Ⓥⓘⓔⓦ Ⓓⓔⓣⓐⓘⓛⓢ
+            Ⓥⓘⓔⓦ Ⓓⓔⓣⓐⓘⓛⓢ
             </a>
           </div>
         ))}

@@ -28,7 +28,7 @@ export default function Register() {
   return (
     <form onSubmit={handleRegister} className="max-w-sm mx-auto mt-16 flex flex-col gap-4">
 
-      <h2 className="text-2xl font-bold">Register</h2>
+      <h2 className="text-2xl font-bold">Ⓡⓔⓖⓘⓢⓣⓔⓡ</h2>
 
       {error && <p className="text-red-500">{error}</p>}
 
