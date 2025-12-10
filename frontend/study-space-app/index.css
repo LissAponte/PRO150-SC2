@@ -79,7 +79,7 @@ body {
 	border-radius: 60px;
 	padding: 20px;
 	width: 500px;
-	height: 60px;
+	height: 75px;
 	background-color:  darkgreen;
 	
 }
@@ -188,11 +188,25 @@ body {
 	transform: translateY(1px);
 }
 
+.login-btn,
+.register-btn {
+	font-size: 0.9rem;
+	padding: 0.4rem 0.7rem;
+	color: rgb(4, 21, 4);
+	border: 2px solid rgb(4, 21, 4);
+	background-color: darkgreen;
+	border-radius: 60px;
+	cursor: pointer;
+	padding: 40px;
+	font-size: 40px;
+	justify-content: center;
+	position: relative;
+	top: 10px;
+	left: 10px;
+}
 
 .home-btn,
 .study-spaces-btn,
-.login-btn,
-.register-btn,
 .favorites-btn {
 	font-size: 0.9rem;
 	padding: 0.4rem 0.7rem;
@@ -207,8 +221,6 @@ body {
 	position: relative;
 	top: 10px;
 	left: 10px;
-
-
 }
 
 .profile-btn {

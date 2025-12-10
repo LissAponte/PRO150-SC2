@@ -7,6 +7,8 @@ export default function Home() {
     <div>
       <nav className="flex gap-4 p-4 bg-gray-100">
         <h1>ⒽⓄⓂⒺ ⓅⒶⒼⒺ</h1>
+        <h3>Ⓦⓔⓛⓒⓞⓜⓔ ⓣⓞ ⓈⓣⓤⓓⓨⒷⓤⓖ!</h3>
+        <h3>Ⓣⓗⓔ ⓟⓛⓐⓒⓔ ⓕⓞⓡ ⓐⓛⓛ ⓨⓞⓤⓡ ⓢⓣⓤⓓⓨ ⓝⓔⓔⓓⓢ!</h3>
 
         <a href="/login">
           <button className="login-btn">ⓁⓄⒼⒾⓃ</button>
