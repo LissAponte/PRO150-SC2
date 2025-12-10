@@ -1,14 +1,23 @@
 const StudySpace = require('../models/StudySpace');
+const crypto = require('crypto');
+
+
+function generateInviteCode() {
+    return crypto.randomBytes(4).toString('hex');
+}
 
 exports.createStudySpace = async (req, res) => {
     try {
-        const { name, description, tags } = req.body;
+        const { name, description, tags, subject } = req.body;
 
         const space = await StudySpace.create({
             name,
+            subject,
             description,
             tags,
-            createdBy: req.user._id
+            createdBy: req.session.userId,
+            members: [req.session.userId],
+            inviteCode: generateInviteCode(),
         });
         res.status(201).json({
             message: 'Study space created successfully',
@@ -29,6 +38,37 @@ exports.getAllStudySpaces = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+exports.getMyStudySpaces = async (req, res) => {
+    try {
+        const spaces = await StudySpace.find({ members: req.session.userId });
+        res.status(200).json(spaces);
+    } catch (error) {
+        console.error('Error fetching user study spaces:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.joinSpace = async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    const space = await StudySpace.findOne({ inviteCode: code });
+    if (!space) return res.status(404).json({ message: "Invalid invite code" });
+
+    if (space.members.includes(req.session.userId)) {
+      return res.status(400).json({ message: "Already a member" });
+    }
+
+    space.members.push(req.session.userId);
+    await space.save();
+
+    res.json({ message: "Joined space", space });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 exports.getStudySpace = async (req, res) => {
     try {

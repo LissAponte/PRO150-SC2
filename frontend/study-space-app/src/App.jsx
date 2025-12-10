@@ -22,12 +22,12 @@ export default function App() {
 
       {/* Page Routes */}
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/spaces" element={<StudySpaces />} />
+        <Route path="/" element={<RequireAuth><Home /></RequireAuth>} />
+        <Route path="/spaces" element={<RequireAuth><StudySpaces /></RequireAuth>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/spaces/:id" element={<StudySpaceDetails />} />
-        <Route path="/favorites" element={<MyFavorites />} />
+        <Route path="/spaces/:id" element={<RequireAuth><StudySpaceDetails /></RequireAuth>} />
+        <Route path="/favorites" element={<RequireAuth><MyFavorites /></RequireAuth>} />
       </Routes>
 
     </div>

@@ -1,5 +1,8 @@
-import axios from "axios";
+export const API_URL = "http://localhost:5000/api";
 
-export const api = axios.create({
-  baseURL: "http://localhost:5000/api",
-});
+export function authHeader() {
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+    };
+}

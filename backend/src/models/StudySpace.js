@@ -6,6 +6,11 @@ const StudySpaceSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Study space name is required']
         },
+        subject: {
+            type: String,
+            required: [true, "Subject is required"],
+            trim: true,
+        },
         description: {
             type: String,
             required: [true, 'Description is required']
@@ -15,11 +20,20 @@ const StudySpaceSchema = new mongoose.Schema(
             ref: 'User',
             required: [true, 'Creator is required']
         },
+        members: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
         rating: {
             type: Number,
             default: 0,
-            min: 0,
-            max: 5
+        },
+        inviteCode: {
+            type: String,
+            unique: true,
+            required: true,
         },
         tags: {
             type: [String],

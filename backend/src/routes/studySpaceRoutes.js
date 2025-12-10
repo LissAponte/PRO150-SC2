@@ -1,23 +1,28 @@
 const express = require("express");
 const router = express.Router();
+const {protect} = require("../middleware/authMiddleware.js");
 
 const {
     createStudySpace,
     getAllStudySpaces,
+    getMyStudySpaces,
+    joinSpace,
     getStudySpace,
     updateStudySpace,
     deleteStudySpace
 } = require("../controllers/studySpaceController");
 
-const { protect, adminOnly } = require("../middleware/authMiddleware");
+router.use(protect);
 
+router.get("/mine", getMyStudySpaces);
 router.get("/", getAllStudySpaces);
 router.get("/:id", getStudySpace);
 
-router.post("/", protect, createStudySpace);
+router.post("/create", createStudySpace);
+router.post("/join", joinSpace);
 
-router.put("/:id", protect, adminOnly, updateStudySpace);
-router.delete("/:id", protect, adminOnly, deleteStudySpace);
+router.put("/:id", updateStudySpace);
+router.delete("/:id", deleteStudySpace);
 
 
 
