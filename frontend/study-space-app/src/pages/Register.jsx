@@ -1,68 +1,34 @@
-import { useState } from "react";
-import { api } from "../api/api";
+import React, { useState} from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+    const { register } = useAuth();
+    const navigate = useNavigate();
+    const [form, setForm] = useState({ name: "", email: "", password: "" });
+    const [error, setError] = useState(null);
 
-  async function handleRegister(e) {
-    e.preventDefault();
-    setError("");
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        try {
+            await register(form);
+            navigate("/home");
+        } catch (err) {
+            setError(err.response?.data?.message || "Registration failed");
+        }
+    };
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    try {
-      await api.post("/auth/register", { name, email, password });
-      alert("Account created! You can now log in.");
-    } catch (err) {
-      setError("Registration failed");
-    }
-  }
-
-  return (
-    <form onSubmit={handleRegister} className="max-w-sm mx-auto mt-16 flex flex-col gap-4">
-
-      <h2 className="text-2xl font-bold">Register</h2>
-
-      {error && <p className="text-red-500">{error}</p>}
-
-      <input
-        type="text"
-        placeholder="Name"
-        className="border p-2 rounded"
-        onChange={(e) => setName(e.target.value)}
-      />
-
-      <input
-        type="email"
-        placeholder="Email"
-        className="border p-2 rounded"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        className="border p-2 rounded"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        className="border p-2 rounded"
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
-
-      <button className="bg-green-500 text-white p-2 rounded">
-        Create Account
-      </button>
-    </form>
+ return (
+    <div className="max-w-md mx-auto mt-20 p-6 border rounded">
+      <h2 className="text-2xl mb-4">Register</h2>
+      {error && <div className="text-red-600 mb-2">{error}</div>}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <input required placeholder="Full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="border p-2 rounded" />
+        <input required placeholder="Email" value={form.email} type="email" onChange={e => setForm({...form, email: e.target.value})} className="border p-2 rounded" />
+        <input required placeholder="Password" value={form.password} type="password" onChange={e => setForm({...form, password: e.target.value})} className="border p-2 rounded" />
+        <button className="bg-green-600 text-white p-2 rounded">Create account</button>
+      </form>
+    </div>
   );
 }

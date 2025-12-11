@@ -10,15 +10,18 @@ exports.createStudySpace = async (req, res) => {
     try {
         const { name, description, tags, subject } = req.body;
 
+        const userId = req.user._id;
+
         const space = await StudySpace.create({
             name,
             subject,
             description,
             tags,
-            createdBy: req.session.userId,
-            members: [req.session.userId],
+            createdBy: userId,
+            members: [userId],
             inviteCode: generateInviteCode(),
         });
+
         res.status(201).json({
             message: 'Study space created successfully',
             space,
@@ -28,6 +31,7 @@ exports.createStudySpace = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 exports.getAllStudySpaces = async (req, res) => {
     try {
@@ -41,7 +45,7 @@ exports.getAllStudySpaces = async (req, res) => {
 
 exports.getMyStudySpaces = async (req, res) => {
     try {
-        const spaces = await StudySpace.find({ members: req.session.userId });
+        const spaces = await StudySpace.find({ members: req.user._id });
         res.status(200).json(spaces);
     } catch (error) {
         console.error('Error fetching user study spaces:', error);
@@ -56,11 +60,11 @@ exports.joinSpace = async (req, res) => {
     const space = await StudySpace.findOne({ inviteCode: code });
     if (!space) return res.status(404).json({ message: "Invalid invite code" });
 
-    if (space.members.includes(req.session.userId)) {
+    if (space.members.includes(req.user._id)){
       return res.status(400).json({ message: "Already a member" });
     }
 
-    space.members.push(req.session.userId);
+    space.members.push(req.user._id);;
     await space.save();
 
     res.json({ message: "Joined space", space });
@@ -107,17 +111,19 @@ exports.updateStudySpace = async (req, res) => {
     }
 };
 
-exports.deleteStudySpace = async (req, res) => {
-    try {
-        const space = await StudySpace.findByIdAndDelete(req.params.id);
+exports.deleteSpace = async (req, res) => {
+  try {
+    const space = await StudySpace.findById(req.params.id);
+    if (!space) return res.status(404).json({ message: "Space not found" });
 
-        if (!space) {
-            return res.status(404).json({ message: 'Study space not found' });
-        }
+    // Only owner can delete
+    if (space.owner.toString() !== req.user.id)
+      return res.status(403).json({ message: "Not authorized" });
 
-        res.status(200).json({ message: 'Study space deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting study space:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
+    await StudySpace.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Study space deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

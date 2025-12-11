@@ -1,207 +1,313 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { api } from "../api/api";
-
-const user = JSON.parse(localStorage.getItem("user")); // logged-in user info
-
+import React, { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import useSocket from "../hooks/useSocket";
+import { getChatHistory } from "../services/chatService";
+import { postReview, getReviews, deleteReview } from "../services/reviewService";
+import api from "../api/axios";
 
 export default function StudySpaceDetails() {
-    const { id } = useParams(); // get study space ID from URL
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const socketRef = useSocket();
+
     const [space, setSpace] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [messageText, setMessageText] = useState("");
     const [reviews, setReviews] = useState([]);
-    const [newRating, setNewRating] = useState(5);
+    const [newRating, setNewRating] = useState("");
     const [newComment, setNewComment] = useState("");
+    const [isFavorite, setIsFavorite] = useState(false);
+    const bottomRef = useRef(null);
 
+    const user = JSON.parse(localStorage.getItem("user"));
 
-
-    async function handleFavorite() {
-        try {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) return alert("Please log in first!");
-
-            const res = await api.post(`/users/${user._id}/favorites`, {
-                studySpaceId: space._id,
-            });
-
-            // Toggle UI
-            setIsFavorite(!isFavorite);
-
-            // Update local user data
-            localStorage.setItem("user", JSON.stringify(res.data));
-
-        } catch (err) {
-            console.error("Error updating favorites:", err);
-        }
-    }
-
-
-
-    async function fetchSpace() {
-        try {
-            const res = await api.get(`/spaces/${id}`);
-            setSpace(res.data);
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (user && user.favorites && user.favorites.includes(res.data._id)) {
-                setIsFavorite(true);
+    // ---------------------- LOAD DATA ----------------------
+    useEffect(() => {
+        async function load() {
+            try {
+                const resSpace = await api.get(`/spaces/${id}`);
+                setSpace(resSpace.data);
+            } catch (err) {
+                console.error("Failed to fetch space:", err);
             }
 
+            try {
+                const resReviews = await getReviews(id);
+                setReviews(resReviews.data);
+            } catch (err) {
+                console.error("Failed to fetch reviews:", err);
+            }
+
+            try {
+                const history = await getChatHistory(id);
+                setMessages(history.data || history);
+            } catch (error) {
+                if (error.response?.status === 404) {
+                    console.log("No chat exists — creating one now…");
+                    const newChat = await api.post(`/chats`, { spaceId: id });
+                    setMessages(newChat.data.messages || []);
+                } else {
+                    console.error("Failed to fetch chat history:", error);
+                }
+            }
+            if (user) {
+                const favRes = await api.get(`/users/${user._id}/favorites`);
+                const userFavs = favRes.data.map((fav) => fav._id);
+                setIsFavorite(userFavs.includes(id));
+            }
+
+        }
+
+        load();
+    }, [id]);
+
+
+    async function handleToggleFavorite() {
+        try {
+            const res = await api.post(`/users/${user._id}/favorites/${id}`);
+            setIsFavorite(res.data.favorites.includes(id));
         } catch (err) {
-            console.error("Error loading study space:", err);
-        } finally {
-            setLoading(false);
+            console.error("Failed to toggle favorite:", err);
         }
     }
 
-    async function handleSubmitReview() {
+    async function handleDeleteSpace() {
+        if (!confirm("Are you sure you want to delete this study space?")) return;
         try {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) return alert("Please log in to leave a review!");
+            await api.delete(`/spaces/${id}`);
+            navigate("/home");
+        } catch (err) {
+            console.error("Failed to delete space:", err);
+        }
+    }
 
-            const res = await api.post("/reviews", {
-                studySpaceId: space._id,
-                rating: newRating,
+    // ---------------------- SOCKET SETUP ----------------------
+    useEffect(() => {
+        const socket = socketRef.current;
+        if (!socket) return;
+
+        socket.emit("joinRoom", id);
+
+        socket.on("chatMessage", (message) => {
+            setMessages((prev) => [...prev, message]);
+        });
+
+        return () => {
+            socket.off("chatMessage");
+        };
+    }, [id, socketRef]);
+
+    // ---------------------- SEND MESSAGE ----------------------
+    function sendMessage(e) {
+        e.preventDefault();
+        if (!messageText.trim()) return;
+
+        const socket = socketRef.current;
+        if (!socket) return;
+
+        const outbound = {
+            roomId: id,
+            user: user._id,
+            username: user.name,
+            message: messageText,
+        };
+
+        socket.emit("chatMessage", outbound);
+
+        setMessageText("");
+    }
+
+    // ---------------------- SUBMIT REVIEW ----------------------
+    async function handleSubmitReview(e) {
+        e.preventDefault();
+        try {
+            const res = await postReview({
+                studySpaceId: id,
+                rating: Number(newRating),
                 comment: newComment,
             });
 
-            // Add the new review to the list immediately
-            setReviews([...reviews, res.data]);
+            setReviews((prev) => [...prev, res.data]);
 
-            // Reset form
-            setNewRating(5);
+            const updatedSpace = await api.get(`/spaces/${id}`);
+            setSpace(updatedSpace.data);
+
+            setNewRating("");
             setNewComment("");
-        } catch (error) {
-            console.error("Error submitting review:", error);
+        } catch (err) {
+            console.error("Failed to post review:", err);
         }
     }
 
-    async function handleDeleteReview(id) {
+    // ---------------------- DELETE REVIEW ----------------------
+    async function handleDeleteReview(reviewId) {
         try {
-            await api.delete(`/reviews/${id}`);
-            setReviews(reviews.filter(r => r._id !== id));
-        } catch (error) {
-            console.error(error);
+            await deleteReview(reviewId);
+            setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+
+            const updatedSpace = await api.get(`/spaces/${id}`);
+            setSpace(updatedSpace.data);
+        } catch (err) {
+            console.error("Failed to delete review:", err);
         }
     }
 
-
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                // Fetch space details
-                const resSpace = await api.get(`/spaces/${id}`);
-                setSpace(resSpace.data);
-
-                // Fetch reviews
-                const resReviews = await api.get(`/reviews/${id}`);
-                setReviews(resReviews.data);
-            } catch (err) {
-                console.error("Error loading data:", err);
-            } finally {
-                setLoading(false);
-            }
+    // ---------------------- DELETE SPACE ----------------------
+    async function handleDeleteSpace() {
+        if (!confirm("Are you sure you want to delete this study space?")) return;
+        try {
+            await api.delete(`/spaces/${id}`);
+            navigate("/home");
+        } catch (err) {
+            console.error("Failed to delete space:", err);
         }
+    }
 
-        fetchData();
+    // Auto-scroll chat
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
-    }, [id]);
+    if (!space) return <div>Loading...</div>;
 
-    if (loading) return <p className="mt-20 text-center">Loading...</p>;
-    if (!space) return <p className="mt-20 text-center">Study space not found.</p>;
+    const isOwner =
+        user && String(user._id) === String(space.owner?._id || space.owner);
 
     return (
-        <div className="max-w-2xl mx-auto mt-10 p-4">
-            <h1 className="text-3xl font-bold mb-4">{space.name}</h1>
-
-            <p className="text-yellow-600 font-semibold">
-                ⭐ Average Rating: {space.averageRating || "No ratings yet"}
-            </p>
-
-            <button
-                onClick={handleFavorite}
-                className="text-red-500 text-2xl"
-            >
-                {isFavorite ? "❤️" : "🤍"}
-            </button>
-
-
-            <p className="text-yellow-600 font-semibold">
-                Average Rating: {space.averageRating || "No ratings yet"}
-            </p>
-            <p className="text-gray-700 mb-2">Tags: {space.tags.join(", ")}</p>
-
-            {space.description && (
-                <p className="mt-4 text-gray-800">{space.description}</p>
-            )}
-
-            <h2 className="text-2xl font-semibold mt-6 mb-2">Leave a Review</h2>
-
-            <div className="border p-4 rounded mb-4">
-                <label className="block mb-2 font-medium">Rating (1–5)</label>
-                <input
-                    type="number"
-                    min="1"
-                    max="5"
-                    className="border rounded p-1 w-16"
-                    value={newRating}
-                    onChange={(e) => setNewRating(e.target.value)}
-                />
-
-                <label className="block mt-3 mb-2 font-medium">Comment</label>
-                <textarea
-                    className="border rounded p-2 w-full"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                />
-
-                <button
-                    onClick={handleSubmitReview}
-                    className="mt-3 bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                    Submit Review
-                </button>
-            </div>
-
-            <h2 className="text-2xl font-semibold mt-6 mb-2">Reviews</h2>
-
-            {reviews.length === 0 ? (
-                <p>No reviews yet. Be the first to review this study space!</p>
-            ) : (
-                <div className="space-y-4">
-                    {reviews.map((review) => (
-
-                        <div key={review._id} className="border p-4 rounded">
-                            <div className="flex justify-between">
-                                <p className="font-bold">{review.user?.name || "Anonymous"}</p>
-                                <p>⭐ {review.rating}/5</p>
-                            </div>
-                            <p className="mt-2">{review.comment}</p>
-
-                            {user && review.user?._id === user._id && (
-                                <button
-                                    className="text-red-500 text-sm mt-2"
-                                    onClick={() => handleDeleteReview(review._id)}
-                                >
-                                    Delete
-                                </button>
-                            )}
-
-                        </div>
-
-                    ))}
+        <div className="max-w-4xl mx-auto mt-8">
+            <header className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-2xl font-bold">{space.name}</h1>
+                    <p className="text-sm text-gray-600">{space.subject}</p>
+                    <p className="mt-2">{space.description}</p>
                 </div>
-            )}
 
+                <div className="flex gap-2">
 
+                    {/* FAVORITE BUTTON (visible for any logged-in user) */}
+                    {user && (
+                        <button
+                            onClick={handleToggleFavorite}
+                            className={`px-3 py-1 rounded ${isFavorite ? "bg-purple-700 text-white" : "bg-purple-400 text-white"}`}
+                        >
+                            {isFavorite ? "★ Favorited" : "☆ Favorite"}
+                        </button>
+                    )}
 
-            <button
-                className="mt-6 bg-gray-700 text-white px-4 py-2 rounded"
-                onClick={() => window.history.back()}
-            >
-                Back
-            </button>
+                    {/* OWNER ONLY BUTTONS */}
+                    {isOwner && (
+                        <>
+                            <button
+                                onClick={() => navigate(`/space/${id}`)}
+                                className="bg-yellow-500 px-3 py-1 rounded"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                onClick={handleDeleteSpace}
+                                className="bg-red-600 text-white px-3 py-1 rounded"
+                            >
+                                Delete
+                            </button>
+                        </>
+                    )}
+                </div>
+            </header>
+
+            <section className="mt-6 grid md:grid-cols-2 gap-6">
+                {/* Chat */}
+                <div>
+                    <h2 className="font-semibold">Chat</h2>
+                    <div className="mt-2 border rounded h-80 overflow-y-auto p-3">
+                        {messages.map((m, i) => (
+                            <div key={m._id || i} className="mb-2">
+                                <div className="text-sm font-bold">
+                                    {m.username}
+                                </div>
+                                <div>{m.message}</div>
+                                <div className="text-xs text-gray-500">
+                                    {m.createdAt
+                                        ? new Date(m.createdAt).toLocaleString()
+                                        : ""}
+                                </div>
+                            </div>
+                        ))}
+                        <div ref={bottomRef} />
+                    </div>
+
+                    <form onSubmit={sendMessage} className="mt-2 flex gap-2">
+                        <input
+                            value={messageText}
+                            onChange={(e) => setMessageText(e.target.value)}
+                            placeholder="Type a message"
+                            className="flex-1 border p-2 rounded"
+                        />
+                        <button className="bg-blue-600 text-white px-3 py-1 rounded">
+                            Send
+                        </button>
+                    </form>
+                </div>
+
+                {/* Reviews */}
+                <div>
+                    <h2 className="font-semibold">Reviews</h2>
+
+                    <form onSubmit={handleSubmitReview} className="mt-3 border p-3 rounded">
+                        <label className="block mb-1">Rating (1-5)</label>
+                        <input
+                            type="number"
+                            min="1"
+                            max="5"
+                            value={newRating}
+                            onChange={(e) => setNewRating(e.target.value)}
+                            className="border p-1 rounded w-20"
+                        />
+
+                        <label className="block mt-2 mb-1">Comment</label>
+                        <textarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            className="border p-2 rounded w-full"
+                        />
+
+                        <button className="mt-2 bg-green-600 text-white px-3 py-1 rounded">
+                            Submit Review
+                        </button>
+                    </form>
+
+                    <div className="mt-4 space-y-3">
+                        {reviews.length === 0 && (
+                            <p className="text-gray-600">No reviews yet</p>
+                        )}
+
+                        {reviews.map((r) => (
+                            <div key={r._id} className="border p-2 rounded">
+                                <div className="flex justify-between">
+                                    <div className="font-bold">
+                                        {r.user?.name}
+                                    </div>
+                                    <div>{r.rating}</div>
+                                </div>
+                                <p className="mt-1">{r.comment}</p>
+
+                                {user &&
+                                    String(user._id) ===
+                                    String(r.user?._id) && (
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteReview(r._id)
+                                            }
+                                            className="text-red-500 text-sm mt-1"
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }

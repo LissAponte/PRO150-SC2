@@ -5,6 +5,9 @@ const connectDB = require("./config/db");
 const cors = require("cors");
 const { Server } = require("socket.io");
 
+const StudySpace = require("./models/StudySpace");
+const ChatMessage = require("./models/ChatMessage");
+
 // Enable CORS for frontend
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
@@ -24,31 +27,81 @@ const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
     credentials: true,
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+  },
 });
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  // Join room
-  socket.on("joinRoom", (roomId) => {
-    socket.join(roomId);
-    console.log(`User joined room: ${roomId}`);
+  /* ---------------------------------------------------------
+     JOIN ROOM (with membership validation)
+     frontend must emit: socket.emit("joinRoom", { roomId, user: user._id })
+  ----------------------------------------------------------- */
+  socket.on("joinRoom", async ({ roomId, user }) => {
+    try {
+      const space = await StudySpace.findById(roomId);
+
+      if (!space) {
+        return socket.emit("error", "StudySpace not found");
+      }
+
+      const isMember = space.members.some(
+        (m) => m.toString() === user.toString()
+      );
+
+      if (!isMember) {
+        return socket.emit("error", "You are not a member of this StudySpace");
+      }
+
+      socket.join(roomId);
+      console.log(`User ${user} joined room: ${roomId}`);
+    } catch (err) {
+      console.error("joinRoom error:", err);
+      socket.emit("error", "Server error joining room");
+    }
   });
 
-  // Receive chat message
+  /* ---------------------------------------------------------
+     SEND CHAT MESSAGE (with membership validation)
+     frontend must emit:
+     socket.emit("chatMessage", {
+        roomId,
+        user: user._id,
+        username: user.name,
+        message
+     })
+  ----------------------------------------------------------- */
   socket.on("chatMessage", async (data) => {
-    const ChatMessage = require("./models/ChatMessage");
+    try {
+      const { roomId, user, username, message } = data;
 
-    const saved = await ChatMessage.create({
-      roomId: data.roomId,
-      user: data.userId,
-      username: data.username,
-      message: data.message,
-    });
+      const space = await StudySpace.findById(roomId);
 
-    io.to(data.roomId).emit("chatMessage", saved);
+      if (!space) {
+        return socket.emit("error", "StudySpace not found");
+      }
+
+      const isMember = space.members.some(
+        (m) => m.toString() === user.toString()
+      );
+
+      if (!isMember) {
+        return socket.emit("error", "You are not a member of this StudySpace");
+      }
+
+      const saved = await ChatMessage.create({
+        roomId,
+        user,
+        username,
+        message,
+      });
+
+      io.to(roomId).emit("chatMessage", saved);
+    } catch (err) {
+      console.error("chatMessage error:", err);
+      socket.emit("error", "Error sending chat");
+    }
   });
 
   socket.on("disconnect", () => {

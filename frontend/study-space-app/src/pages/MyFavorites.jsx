@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../api/api";
+import api from "../api/axios";
 
 export default function MyFavorites() {
   const [spaces, setSpaces] = useState([]);
@@ -35,7 +35,7 @@ export default function MyFavorites() {
             <p className="text-gray-700">{space.location}</p>
 
             <a
-              href={`/spaces/${space._id}`}
+              href={`/space/${space._id}`}
               className="mt-3 inline-block bg-blue-500 text-white px-3 py-1 rounded"
             >
               View Details

@@ -12,8 +12,13 @@ const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],  
+    credentials: true,
+  })
+);app.use(express.json());
 
 app.use(
   session({
@@ -32,7 +37,7 @@ app.use(
 );
 
 app.use('/api/auth', authRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api/chats", chatRoutes);
 app.use('/api/spaces', studySpaceRoutes);
 app.use('/api/users', userRoutes);
 app.use("/api/reviews", reviewRoutes);

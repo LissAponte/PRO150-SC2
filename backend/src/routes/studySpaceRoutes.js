@@ -9,7 +9,7 @@ const {
     joinSpace,
     getStudySpace,
     updateStudySpace,
-    deleteStudySpace
+    deleteSpace
 } = require("../controllers/studySpaceController");
 
 router.use(protect);
@@ -18,11 +18,12 @@ router.get("/mine", getMyStudySpaces);
 router.get("/", getAllStudySpaces);
 router.get("/:id", getStudySpace);
 
+
 router.post("/create", createStudySpace);
 router.post("/join", joinSpace);
 
 router.put("/:id", updateStudySpace);
-router.delete("/:id", deleteStudySpace);
+router.delete("/:id", deleteSpace);
 
 
 

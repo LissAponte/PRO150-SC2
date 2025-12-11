@@ -1,86 +1,62 @@
-import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
-import { getChatHistory } from "../services/chatService";
+// src/pages/StudySpaces.jsx
+import React, { useEffect, useState } from "react";
+import { getAllSpacesService, joinSpaceService } from "../services/spaceService";
 
-const socket = io("http://localhost:5000", {
-    withCredentials: true,
-});
+export default function StudySpaces() {
+  const [spaces, setSpaces] = useState([]);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
 
-export default function StudySpace() {
-    const { id: roomId } = useParams();
-    const user = JSON.parse(localStorage.getItem("user"));
+  useEffect(() => {
+    load();
+  }, []);
 
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState("");
-
-    const bottomRef = useRef(null);
-
-    useEffect(() => {
-        // Load existing chat history
-        loadHistory();
-
-        // Join the room
-        socket.emit("joinRoom", roomId);
-
-        // Receive messages
-        socket.on("chatMessage", (msg) => {
-            setMessages((prev) => [...prev, msg]);
-        });
-
-        return () => {
-            socket.off("chatMessage");
-        };
-    }, [roomId]);
-
-    async function loadHistory() {
-        const history = await getChatHistory(roomId);
-        setMessages(history);
+  async function load() {
+    try {
+      const res = await getAllSpacesService();
+      setSpaces(res.data);
+    } catch (err) {
+      console.error(err);
     }
+  }
 
-    function sendMessage(e) {
-        e.preventDefault();
-
-        if (!input.trim()) return;
-
-        socket.emit("chatMessage", {
-            roomId,
-            userId: user._id,
-            username: user.name,
-            message: input,
-        });
-
-        setInput("");
+  async function handleJoin(e, codeToUse) {
+    e.preventDefault();
+    setError("");
+    try {
+      await joinSpaceService(codeToUse || code);
+      await load();
+      setCode("");
+      alert("Joined space");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to join");
     }
+  }
 
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+  return (
+    <div className="max-w-5xl mx-auto mt-8">
+      <h1 className="text-2xl font-bold">All Study Spaces</h1>
 
-    return (
-        <div>
-            <h1>Study Group</h1>
+      <div className="mt-4 mb-6">
+        <form onSubmit={(e) => handleJoin(e, null)} className="flex gap-2">
+          <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Invite code" className="border p-2 rounded" />
+          <button className="bg-green-600 text-white px-3 py-2 rounded">Join by code</button>
+        </form>
+        {error && <p className="text-red-600 mt-2">{error}</p>}
+      </div>
 
-            <div style={{ height: "300px", overflowY: "auto", border: "1px solid #ccc" }}>
-                {messages.map((m) => (
-                    <div key={m._id}>
-                        <strong>{m.username}</strong>: {m.message}
-                        <div style={{ fontSize: "0.7rem", color: "#aaa" }}>
-                            {new Date(m.createdAt).toLocaleTimeString()}
-                        </div>
-                    </div>
-                ))}
-                <div ref={bottomRef} />
+      <div className="grid md:grid-cols-3 gap-4">
+        {spaces.map(s => (
+          <div key={s._id} className="p-4 border rounded">
+            <h3 className="font-bold">{s.name}</h3>
+            <p className="text-sm text-gray-600">{s.subject}</p>
+            <p className="mt-2">{s.description}</p>
+            <div className="mt-3 flex gap-2">
+              <a href={`/space/${s._id}`} className="text-blue-600">Open</a>
             </div>
-
-            <form onSubmit={sendMessage}>
-                <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type a message…"
-                />
-                <button>Send</button>
-            </form>
-        </div>
-    );
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

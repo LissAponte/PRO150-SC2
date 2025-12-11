@@ -7,11 +7,13 @@ const { protect } = require("../middleware/authMiddleware");
 // Recalculate study space average rating
 async function updateAverage(studySpaceId) {
   const reviews = await Review.find({ studySpaceId });
+
   const avg =
     reviews.reduce((sum, r) => sum + r.rating, 0) / (reviews.length || 1);
 
   await StudySpace.findByIdAndUpdate(studySpaceId, {
-    averageRating: avg.toFixed(1),
+    rating: avg,
+    reviewCount: reviews.length,
   });
 }
 

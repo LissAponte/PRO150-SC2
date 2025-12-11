@@ -1,35 +1,18 @@
-import { API_URL } from "../api/api";
+import api from "../api/axios";
 
-export async function registerUser(userData) {
-    const res = await fetch(`${API_URL}/auth/register`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(userData)
-    });
-
-    return res.json();
+export async function loginService(email, password) {
+    return api.post("/auth/login", { email, password });
 }
 
-export async function loginUser(credentials) {
-    const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(credentials)
-    });
-
-    const body = await res.json();
-    if (body.token) {
-        localStorage.setItem("token", body.token);
-        localStorage.setItem("user", JSON.stringify(body.user));
-    }
-    return body;
+export async function registerService(credentials) {
+    return api.post("/auth/register", credentials);
 }
 
-export function logoutUser() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+export async function logoutService() {
+    return api.post("/auth/logout");
 }
+
+export async function fetchCurrentUser() {
+    return api.get("/user/me");
+}
+

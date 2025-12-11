@@ -3,11 +3,13 @@ const User = require('../models/User');
 exports.getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
+        if (!user) return res.status(404).json({ message: "User not found" });
+
 
         res.status(200).json(user);
     } catch (error) {
         console.error("Get profile error", error.message);
-        res.status(500).send({message: 'Error retrieving profile'});
+        res.status(500).send({ message: 'Error retrieving profile' });
     }
 };
 
@@ -15,7 +17,7 @@ exports.updateMe = async (req, res) => {
     try {
         const updates = {
             name: req.body.name,
-            email: req.body.email   
+            email: req.body.email
         };
 
         const user = await User.findByIdAndUpdate(
@@ -23,15 +25,15 @@ exports.updateMe = async (req, res) => {
             updates,
             { new: true }
         ).select('-password');
-
+        
         res.status(200).json({
             message: 'Profile updated successfully',
             user
         });
     } catch (error) {
         console.error("Update profile error", error.message);
-        res.status(500).send({message: 'Error updating profile'});
-        }
+        res.status(500).send({ message: 'Error updating profile' });
+    }
 };
 
 exports.deleteMe = async (req, res) => {
@@ -40,7 +42,7 @@ exports.deleteMe = async (req, res) => {
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
         console.error("Delete profile error", error.message);
-        res.status(500).send({message: 'Error deleting profile'});
+        res.status(500).send({ message: 'Error deleting profile' });
     }
 };
 
@@ -65,6 +67,42 @@ exports.changePassword = async (req, res) => {
         res.status(200).json({ message: 'Password changed successfully' });
     } catch (error) {
         console.error("Change password error", error.message);
-        res.status(500).send({message: 'Error changing password'});
+        res.status(500).send({ message: 'Error changing password' });
     }
+};
+
+exports.getFavorites = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).populate("favorites");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user.favorites);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err });
+  }
+};
+
+exports.toggleFavorite = async (req, res) => {
+  try {
+    const { userId, spaceId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const exists = user.favorites.includes(spaceId);
+
+    if (exists) {
+      user.favorites = user.favorites.filter(
+        (id) => id.toString() !== spaceId
+      );
+    } else {
+      user.favorites.push(spaceId);
+    }
+
+    await user.save();
+
+    res.json({ favorites: user.favorites });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to toggle favorite", error: err });
+  }
 };

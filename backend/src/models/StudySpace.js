@@ -26,10 +26,8 @@ const StudySpaceSchema = new mongoose.Schema(
                 ref: "User",
             },
         ],
-        rating: {
-            type: Number,
-            default: 0,
-        },
+        rating: { type: Number, default: 0 },
+        reviewCount: { type: Number, default: 0 },
         inviteCode: {
             type: String,
             unique: true,

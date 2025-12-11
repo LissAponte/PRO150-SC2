@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Password is required'],
             validate: {
-                validator: function(value) {
+                validator: function (value) {
                     return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,16}$/.test(value);
                 },
                 message:
@@ -41,11 +41,16 @@ const userSchema = new mongoose.Schema(
             default: 'user',
         },
 
+        favorites: [
+            { type: mongoose.Schema.Types.ObjectId, ref: "StudySpace" }
+        ],
+
+
     },
     { timestamps: true }
 );
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
 
     try {
@@ -57,7 +62,7 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-userSchema.methods.matchPassword = async function(enteredPassword) {
+userSchema.methods.matchPassword = async function (enteredPassword) {
     return bcrypt.compare(enteredPassword, this.password);
 };
 

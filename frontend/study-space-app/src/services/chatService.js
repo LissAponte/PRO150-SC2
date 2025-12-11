@@ -1,10 +1,5 @@
-import { API_URL, authHeader } from "../api/api";
+import api from "../api/axios";
 
-export async function getChatMessages(spaceId) {
-    const res = await fetch(`${API_URL}/chats/${spaceId}`, {
-        method: "GET",
-        headers: authHeader()
-    });
-    
-    return res.json();
+export async function getChatHistory(spaceId) {
+    return api.get(`/chats/${spaceId}`);
 }
