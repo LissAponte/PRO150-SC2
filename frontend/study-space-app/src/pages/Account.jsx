@@ -17,7 +17,6 @@ export default function Account() {
         try {
             const response = await updateProfile(form);
             await refreshUser();
-            console.log("Update profile response:", response);
             alert("Profile updated successfully");
         } catch (err) {
             console.error("Update profile error:", err);
@@ -47,23 +46,25 @@ export default function Account() {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-8 p-4 border rounded">
-            <h2 className="text-2xl font-bold mb-4">Account</h2>
+        <div style={{ maxWidth: 640, margin: "2rem auto" }}>
+            <h1 className="page-title">Account</h1>
 
-            <form onSubmit={handleUpdate} className="space-y-3">
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border p-2 rounded w-full" />
-                <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="border p-2 rounded w-full" />
-                <button className="bg-blue-600 text-white px-3 py-2 rounded">Update Profile</button>
-            </form>
+            <div className="study-card mt-2">
+                <form onSubmit={handleUpdate} className="form">
+                    <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                    <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                    <button className="btn">Update Profile</button>
+                </form>
 
-            <form onSubmit={handleChangePassword} className="mt-4 space-y-2">
-                <input type="password" placeholder="Current password" value={passwords.currentPassword} onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })} className="border p-2 rounded w-full" />
-                <input type="password" placeholder="New password" value={passwords.newPassword} onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} className="border p-2 rounded w-full" />
-                <button className="bg-yellow-500 px-3 py-2 rounded">Change Password</button>
-            </form>
+                <form onSubmit={handleChangePassword} className="form" style={{ marginTop: 12 }}>
+                    <input type="password" placeholder="Current password" value={passwords.currentPassword} onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })} />
+                    <input type="password" placeholder="New password" value={passwords.newPassword} onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} />
+                    <button className="btn ghost">Change Password</button>
+                </form>
 
-            <div className="mt-6">
-                <button onClick={handleDeleteAccount} className="bg-red-600 text-white px-3 py-2 rounded">Delete Account</button>
+                <div style={{ marginTop: 12 }}>
+                    <button onClick={handleDeleteAccount} className="btn" style={{ background: "var(--danger)" }}>Delete Account</button>
+                </div>
             </div>
         </div>
     );

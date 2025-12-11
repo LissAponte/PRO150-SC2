@@ -21,25 +21,22 @@ export default function MyFavorites() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-4">
-      <h1 className="text-3xl font-bold mb-6">My Favorite Study Spaces</h1>
+    <div>
+      <h1 className="page-title">My Favorite Study Spaces</h1>
 
       {spaces.length === 0 && (
-        <p>You have no favorite study spaces yet.</p>
+        <p className="empty">You have no favorites yet.</p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="study-grid mt-2">
         {spaces.map((space) => (
-          <div key={space._id} className="p-4 border rounded shadow">
-            <h2 className="text-xl font-semibold">{space.name}</h2>
-            <p className="text-gray-700">{space.location}</p>
+          <div key={space._id} className="study-card">
+            <div className="card-header">{space.name}</div>
+            <p className="muted">{space.location}</p>
 
-            <a
-              href={`/space/${space._id}`}
-              className="mt-3 inline-block bg-blue-500 text-white px-3 py-1 rounded"
-            >
-              View Details
-            </a>
+            <div style={{ marginTop: 10 }}>
+              <a href={`/space/${space._id}`} className="btn">View Details</a>
+            </div>
           </div>
         ))}
       </div>

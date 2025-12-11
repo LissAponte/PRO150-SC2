@@ -21,7 +21,6 @@ export default function StudySpaceDetails() {
 
     const user = JSON.parse(localStorage.getItem("user"));
 
-    // ---------------------- LOAD DATA ----------------------
     useEffect(() => {
         async function load() {
             try {
@@ -43,24 +42,20 @@ export default function StudySpaceDetails() {
                 setMessages(history.data || history);
             } catch (error) {
                 if (error.response?.status === 404) {
-                    console.log("No chat exists — creating one now…");
                     const newChat = await api.post(`/chats`, { spaceId: id });
                     setMessages(newChat.data.messages || []);
-                } else {
-                    console.error("Failed to fetch chat history:", error);
                 }
             }
+
             if (user) {
                 const favRes = await api.get(`/users/${user._id}/favorites`);
                 const userFavs = favRes.data.map((fav) => fav._id);
                 setIsFavorite(userFavs.includes(id));
             }
-
         }
 
         load();
     }, [id]);
-
 
     async function handleToggleFavorite() {
         try {
@@ -81,7 +76,6 @@ export default function StudySpaceDetails() {
         }
     }
 
-    // ---------------------- SOCKET SETUP ----------------------
     useEffect(() => {
         const socket = socketRef.current;
         if (!socket) return;
@@ -97,7 +91,6 @@ export default function StudySpaceDetails() {
         };
     }, [id, socketRef]);
 
-    // ---------------------- SEND MESSAGE ----------------------
     function sendMessage(e) {
         e.preventDefault();
         if (!messageText.trim()) return;
@@ -117,7 +110,6 @@ export default function StudySpaceDetails() {
         setMessageText("");
     }
 
-    // ---------------------- SUBMIT REVIEW ----------------------
     async function handleSubmitReview(e) {
         e.preventDefault();
         try {
@@ -139,7 +131,6 @@ export default function StudySpaceDetails() {
         }
     }
 
-    // ---------------------- DELETE REVIEW ----------------------
     async function handleDeleteReview(reviewId) {
         try {
             await deleteReview(reviewId);
@@ -152,162 +143,104 @@ export default function StudySpaceDetails() {
         }
     }
 
-    // ---------------------- DELETE SPACE ----------------------
-    async function handleDeleteSpace() {
-        if (!confirm("Are you sure you want to delete this study space?")) return;
-        try {
-            await api.delete(`/spaces/${id}`);
-            navigate("/home");
-        } catch (err) {
-            console.error("Failed to delete space:", err);
-        }
-    }
-
-    // Auto-scroll chat
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    if (!space) return <div>Loading...</div>;
+    if (!space) return <div className="empty">Loading...</div>;
 
     const isOwner =
         user && String(user._id) === String(space.owner?._id || space.owner);
 
     return (
-        <div className="max-w-4xl mx-auto mt-8">
-            <header className="flex justify-between items-start">
+        <div>
+            <header className="study-card" style={{ marginBottom: "1rem", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                 <div>
-                    <h1 className="text-2xl font-bold">{space.name}</h1>
-                    <p className="text-sm text-gray-600">{space.subject}</p>
-                    <p className="mt-2">{space.description}</p>
+                    <h1 className="page-title">{space.name}</h1>
+                    <p className="muted" style={{ marginTop: 6 }}>{space.subject}</p>
+                    <p style={{ marginTop: 6 }}>{space.description}</p>
                 </div>
 
-                <div className="flex gap-2">
-
-                    {/* FAVORITE BUTTON (visible for any logged-in user) */}
+                <div style={{ display:"flex", gap: 8 }}>
                     {user && (
                         <button
                             onClick={handleToggleFavorite}
-                            className={`px-3 py-1 rounded ${isFavorite ? "bg-purple-700 text-white" : "bg-purple-400 text-white"}`}
+                            className="btn"
+                            style={{ background: isFavorite ? "var(--primary)" : "transparent", color: isFavorite ? "#fff" : "var(--primary)", border: isFavorite ? "none" : "1px solid rgba(59,138,59,0.12)" }}
                         >
                             {isFavorite ? "★ Favorited" : "☆ Favorite"}
                         </button>
                     )}
 
-                    {/* OWNER ONLY BUTTONS */}
                     {isOwner && (
                         <>
-                            <button
-                                onClick={() => navigate(`/space/${id}`)}
-                                className="bg-yellow-500 px-3 py-1 rounded"
-                            >
-                                Edit
-                            </button>
-
-                            <button
-                                onClick={handleDeleteSpace}
-                                className="bg-red-600 text-white px-3 py-1 rounded"
-                            >
-                                Delete
-                            </button>
+                            <button onClick={() => navigate(`/space/${id}`)} className="btn ghost">Edit</button>
+                            <button onClick={handleDeleteSpace} className="btn" style={{ background: "var(--danger)" }}>Delete</button>
                         </>
                     )}
                 </div>
             </header>
 
-            <section className="mt-6 grid md:grid-cols-2 gap-6">
-                {/* Chat */}
-                <div>
-                    <h2 className="font-semibold">Chat</h2>
-                    <div className="mt-2 border rounded h-80 overflow-y-auto p-3">
+            <section style={{ display:"grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="responsive-grid">
+                <div className="study-card">
+                    <div className="card-header">Chat</div>
+
+                    <div style={{ marginTop: 10, height: 340, overflowY: "auto", border: "1px solid var(--card-border)", borderRadius: 8, padding: 10 }}>
                         {messages.map((m, i) => (
-                            <div key={m._id || i} className="mb-2">
-                                <div className="text-sm font-bold">
-                                    {m.username}
-                                </div>
-                                <div>{m.message}</div>
-                                <div className="text-xs text-gray-500">
-                                    {m.createdAt
-                                        ? new Date(m.createdAt).toLocaleString()
-                                        : ""}
+                            <div key={m._id || i} style={{ marginBottom: 12 }}>
+                                <div style={{ fontWeight:700 }}>{m.username}</div>
+                                <div style={{ marginTop:4 }}>{m.message}</div>
+                                <div className="muted" style={{ fontSize: 12, marginTop:6 }}>
+                                    {m.createdAt ? new Date(m.createdAt).toLocaleString() : ""}
                                 </div>
                             </div>
                         ))}
                         <div ref={bottomRef} />
                     </div>
 
-                    <form onSubmit={sendMessage} className="mt-2 flex gap-2">
-                        <input
-                            value={messageText}
-                            onChange={(e) => setMessageText(e.target.value)}
-                            placeholder="Type a message"
-                            className="flex-1 border p-2 rounded"
-                        />
-                        <button className="bg-blue-600 text-white px-3 py-1 rounded">
-                            Send
-                        </button>
+                    <form onSubmit={sendMessage} className="form" style={{ marginTop: 10 }}>
+                        <input value={messageText} onChange={(e) => setMessageText(e.target.value)} placeholder="Type a message" />
+                        <button className="btn">Send</button>
                     </form>
                 </div>
 
-                {/* Reviews */}
-                <div>
-                    <h2 className="font-semibold">Reviews</h2>
+                <div className="study-card">
+                    <div className="card-header">Reviews</div>
 
-                    <form onSubmit={handleSubmitReview} className="mt-3 border p-3 rounded">
-                        <label className="block mb-1">Rating (1-5)</label>
-                        <input
-                            type="number"
-                            min="1"
-                            max="5"
-                            value={newRating}
-                            onChange={(e) => setNewRating(e.target.value)}
-                            className="border p-1 rounded w-20"
-                        />
+                    <form onSubmit={handleSubmitReview} className="form" style={{ marginTop: 10 }}>
+                        <label className="muted">Rating (1-5)</label>
+                        <input type="number" min="1" max="5" value={newRating} onChange={(e) => setNewRating(e.target.value)} style={{ width: 100 }} />
+                        <label className="muted">Comment</label>
+                        <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} />
 
-                        <label className="block mt-2 mb-1">Comment</label>
-                        <textarea
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            className="border p-2 rounded w-full"
-                        />
-
-                        <button className="mt-2 bg-green-600 text-white px-3 py-1 rounded">
-                            Submit Review
-                        </button>
+                        <button className="btn secondary">Submit Review</button>
                     </form>
 
-                    <div className="mt-4 space-y-3">
-                        {reviews.length === 0 && (
-                            <p className="text-gray-600">No reviews yet</p>
-                        )}
+                    <div style={{ marginTop: 12 }}>
+                        {reviews.length === 0 && <p className="muted">No reviews yet</p>}
 
                         {reviews.map((r) => (
-                            <div key={r._id} className="border p-2 rounded">
-                                <div className="flex justify-between">
-                                    <div className="font-bold">
-                                        {r.user?.name}
-                                    </div>
+                            <div key={r._id} className="study-card" style={{ marginTop: 8 }}>
+                                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                                    <div style={{ fontWeight:700 }}>{r.user?.name}</div>
                                     <div>{r.rating}</div>
                                 </div>
-                                <p className="mt-1">{r.comment}</p>
+                                <p style={{ marginTop:8 }}>{r.comment}</p>
 
-                                {user &&
-                                    String(user._id) ===
-                                    String(r.user?._id) && (
-                                        <button
-                                            onClick={() =>
-                                                handleDeleteReview(r._id)
-                                            }
-                                            className="text-red-500 text-sm mt-1"
-                                        >
-                                            Delete
-                                        </button>
-                                    )}
+                                {user && String(user._id) === String(r.user?._id) && (
+                                    <button onClick={() => handleDeleteReview(r._id)} className="btn ghost" style={{ marginTop: 8 }}>Delete</button>
+                                )}
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
+
+            <style>{`
+                @media (max-width: 900px) {
+                    .responsive-grid { grid-template-columns: 1fr !important; }
+                }
+            `}</style>
         </div>
     );
 }

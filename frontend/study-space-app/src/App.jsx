@@ -15,9 +15,11 @@ export default function App() {
   return (
     <>
       <Navbar />
-      <main className="p-4">
+      <main className="app-container">
         <Routes>
-          <Route path="/" element={<div className="max-w-4xl mx-auto">Welcome to StudySpace. <a href="/home" className="text-blue-600">Go to home</a></div>} />
+          <Route path="/" element={<div className="text-center">
+            Welcome to <span className="studybug-accent">StudyBug</span>. <a href="/home" className="btn">Go to home</a>
+          </div>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
